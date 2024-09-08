@@ -38,7 +38,6 @@
           conn.onmessage = function (evt) {
             var messages = evt.data.split("\n")
             for (var i = 0; i < messages.length; i++) {
-              // split ID from message to color the id
               var s = messages[i]
               const id = s.split(" ", 1)[0]
               var msg = ""
@@ -49,7 +48,6 @@
 
               var idElem = document.createElement("span")
               idElem.innerText = id
-              // the color is the id
               idElem.style.color = "#" + id
               idElem.id = "id"
 
@@ -57,7 +55,6 @@
               msgElem.innerText = msg
 
               var item = document.createElement("div")
-              // item.innerText = messages[i]
               item.appendChild(idElem)
               item.appendChild(msgElem)
 
