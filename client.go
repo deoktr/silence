@@ -124,7 +124,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: id}
 	client.hub.register <- client
 
-	message := bytes.TrimSpace([]byte(fmt.Sprintf("> New user connected (%s)", id)))
+	message := bytes.TrimSpace([]byte(fmt.Sprintf("> New user connected: %s (total: %d)", id, len(client.hub.clients)+1)))
 	client.hub.broadcast <- message
 
 	// Allow collection of memory referenced by the caller by doing all work in
