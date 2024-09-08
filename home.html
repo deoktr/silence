@@ -38,8 +38,29 @@
           conn.onmessage = function (evt) {
             var messages = evt.data.split("\n")
             for (var i = 0; i < messages.length; i++) {
+              // split ID from message to color the id
+              var s = messages[i]
+              const id = s.split(" ", 1)[0]
+              var msg = ""
+              var is = s.indexOf(" ")
+              if (is > 0) {
+                msg = s.slice(is + 1)
+              }
+
+              var idElem = document.createElement("span")
+              idElem.innerText = id
+              // the color is the id
+              idElem.style.color = "#" + id
+              idElem.id = "id"
+
+              var msgElem = document.createElement("span")
+              msgElem.innerText = msg
+
               var item = document.createElement("div")
-              item.innerText = messages[i]
+              // item.innerText = messages[i]
+              item.appendChild(idElem)
+              item.appendChild(msgElem)
+
               appendLog(item)
             }
           }
@@ -55,6 +76,11 @@
         overflow: hidden;
         background-color: #1e1e1e;
         color: #fefefe;
+      }
+
+      *:focus {
+        outline: none;
+        box-shadow: none;
       }
 
       body {
@@ -85,6 +111,10 @@
         left: 0px;
         width: 100%;
         overflow: hidden;
+      }
+
+      #id {
+        padding-right: 0.5rem;
       }
     </style>
   </head>

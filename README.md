@@ -18,5 +18,4 @@ Run:
 
 ## TODO
 
-- Color chat message based on user
 - When a new user connects, print (only to him) the list of current users
