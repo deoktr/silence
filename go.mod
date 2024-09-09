@@ -1,4 +1,4 @@
-module chattt
+module silence
 
 go 1.22.2
 
