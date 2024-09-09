@@ -54,10 +54,8 @@ func (c *Client) readPump() {
 		if err != nil {
 			break
 		}
-
 		uid := []byte(c.id + " ")
 		message = append(uid[:], message[:]...)
-
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 		c.hub.broadcast <- message
 	}
@@ -68,7 +66,6 @@ func (c *Client) writePump() {
 	defer func() {
 		message := bytes.TrimSpace([]byte(fmt.Sprintf("> User disconnected (%s)", c.id)))
 		c.hub.broadcast <- message
-
 		ticker.Stop()
 		c.conn.Close()
 	}()
@@ -77,23 +74,19 @@ func (c *Client) writePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
 			w.Write(message)
-
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
 				w.Write(<-c.send)
 			}
-
 			if err := w.Close(); err != nil {
 				return
 			}
@@ -111,16 +104,12 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-
 	uid, _ := uuid.NewRandom()
 	id := uid.String()[:6]
-
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: id}
 	client.hub.register <- client
-
 	message := bytes.TrimSpace([]byte(fmt.Sprintf("> New user connected: %s (total: %d)", id, len(client.hub.clients)+1)))
 	client.hub.broadcast <- message
-
 	go client.writePump()
 	go client.readPump()
 }
@@ -166,18 +155,15 @@ func (h *Hub) run() {
 
 func main() {
 	flag.Parse()
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write(homeHtml)
 	})
-
 	hub := newHub()
 	go hub.run()
 	mux.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-
 	server := &http.Server{
 		Addr:              *addr,
 		Handler:           http.HandlerFunc(mux.ServeHTTP),
