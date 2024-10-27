@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	addr = flag.String("addr", ":8080", "http service address")
+	addr = flag.String("addr", "127.0.0.1:8080", "http service address")
 
 	//go:embed home.html
 	homeHtml []byte
@@ -64,7 +64,7 @@ func (c *Client) readPump() {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		message := bytes.TrimSpace([]byte(fmt.Sprintf("> User disconnected (%s)", c.id)))
+		message := bytes.TrimSpace([]byte(fmt.Sprintf("> User disconnected: %s (total: %d)", c.id, len(c.hub.clients))))
 		c.hub.broadcast <- message
 		ticker.Stop()
 		c.conn.Close()
