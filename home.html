@@ -26,7 +26,15 @@
           return false
         }
         if (window["WebSocket"]) {
-          conn = new WebSocket("ws://" + document.location.host + "/ws")
+          var wsPath = "/ws"
+          var base =
+            location.hostname + (location.port ? ":" + location.port : "")
+          if (location.protocol === "https:") {
+            wsPath = "wss://" + base + wssSource
+          } else if (location.protocol === "http:") {
+            wsPath = "ws://" + base + wssSource
+          }
+          conn = new WebSocket(wsPath)
           conn.onclose = function (evt) {
             var item = document.createElement("div")
             item.innerHTML = "<b>Connection closed.</b>"
