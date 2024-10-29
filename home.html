@@ -30,9 +30,9 @@
           var base =
             location.hostname + (location.port ? ":" + location.port : "")
           if (location.protocol === "https:") {
-            wsPath = "wss://" + base + wssSource
+            wsPath = "wss://" + base + wsPath
           } else if (location.protocol === "http:") {
-            wsPath = "ws://" + base + wssSource
+            wsPath = "ws://" + base + wsPath
           }
           conn = new WebSocket(wsPath)
           conn.onclose = function (evt) {
