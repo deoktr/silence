@@ -5,7 +5,11 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"log"
+	"net"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,7 +25,7 @@ const (
 )
 
 var (
-	addr = flag.String("addr", "127.0.0.1:8080", "http service address")
+	addr = "localhost:8080"
 
 	//go:embed home.html
 	homeHtml []byte
@@ -153,8 +157,29 @@ func (h *Hub) run() {
 	}
 }
 
-func main() {
-	flag.Parse()
+func getListener() net.Listener {
+	var listener net.Listener = nil
+	var err error
+	if os.Getenv("LISTEN_PID") == strconv.Itoa(os.Getpid()) {
+		// systemd file listener for systemd.socket
+		f := os.NewFile(3, "from systemd")
+		listener, err = net.FileListener(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("silence listening on socket file")
+	} else {
+		// port bind
+		listener, err = net.Listen("tcp", addr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("silence listening on: %s", addr)
+	}
+	return listener
+}
+
+func serve() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write(homeHtml)
@@ -164,16 +189,31 @@ func main() {
 	mux.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
+
 	server := &http.Server{
-		Addr:              *addr,
+		Addr:              addr,
 		Handler:           http.HandlerFunc(mux.ServeHTTP),
 		ReadTimeout:       readWait,
 		WriteTimeout:      writeWait,
 		ReadHeaderTimeout: readWait,
 		MaxHeaderBytes:    1 << 20,
 	}
-	err := server.ListenAndServe()
+
+	listener := getListener()
+
+	err := server.Serve(listener)
 	if err != nil {
+		log.Fatal(err)
 		return
 	}
+}
+
+func init() {
+	flag.StringVar(&addr, "addr", addr, "silence listen address")
+}
+
+func main() {
+	flag.Parse()
+
+	serve()
 }
