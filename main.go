@@ -68,7 +68,7 @@ func (c *Client) readPump() {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		message := bytes.TrimSpace([]byte(fmt.Sprintf("> User disconnected: %s (total: %d)", c.id, len(c.hub.clients))))
+		message := bytes.TrimSpace(fmt.Appendf(nil, "> User disconnected: %s (total: %d)", c.id, len(c.hub.clients)))
 		c.hub.broadcast <- message
 		ticker.Stop()
 		c.conn.Close()
@@ -87,7 +87,7 @@ func (c *Client) writePump() {
 			}
 			w.Write(message)
 			n := len(c.send)
-			for i := 0; i < n; i++ {
+			for range n {
 				w.Write(newline)
 				w.Write(<-c.send)
 			}
@@ -112,7 +112,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	id := uid.String()[:6]
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: id}
 	client.hub.register <- client
-	message := bytes.TrimSpace([]byte(fmt.Sprintf("> New user connected: %s (total: %d)", id, len(client.hub.clients)+1)))
+	message := bytes.TrimSpace(fmt.Appendf(nil, "> New user connected: %s (total: %d)", id, len(client.hub.clients)+1))
 	client.hub.broadcast <- message
 	go client.writePump()
 	go client.readPump()

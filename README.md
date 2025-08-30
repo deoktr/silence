@@ -10,24 +10,28 @@ When a user connects to the chatroom he receives a random short UUID which is co
 
 ## Deploy
 
-Build with Go:
+Build container image:
 
 ```bash
-go build
+podman build -t silence .
 ```
 
-Run:
+Run container:
 
 ```bash
-./silence --addr 0.0.0.0:80
+podman run -p 8080:8080 silence
 ```
 
-### Systemd
+Visit [localhost:8080](http://localhost:8080).
+
+## Systemd
 
 Silence supports systemd socket files listener.
 
 ```bash
-sudo go build -o /usr/bin/silence
+go build .
+chown root:root silence
+mv ./silence /usr/bin/silence
 ```
 
 In `/etc/systemd/system/silence.service`:
