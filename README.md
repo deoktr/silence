@@ -10,16 +10,10 @@ When a user connects to the chatroom he receives a random short UUID which is co
 
 ## Deploy
 
-Build container image:
-
-```bash
-podman build -t silence .
-```
-
 Run container:
 
 ```bash
-podman run -p 8080:8080 silence
+docker run -p 8080:8080 ghcr.io/deoktr/silence:latest
 ```
 
 Visit [localhost:8080](http://localhost:8080).
@@ -63,6 +57,10 @@ ListenStream=127.0.0.1:8080
 ```
 
 Then set up a reverse proxy like Nginx in front, don't forget to proxy websocket.
+
+## TODO
+
+- Check why the image is tagged as non-reproducible, check with: `docker buildx imagetools inspect ghcr.io/deoktr/silence:latest --format "{{ json .Provenance.SLSA.metadata.reproducible }}"`
 
 ## License
 
