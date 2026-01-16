@@ -1,15 +1,15 @@
-FROM docker.io/library/golang:1.24 AS build
+FROM docker.io/library/golang:1.25-alpine AS build
 
 WORKDIR /src
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
-RUN go build -o /go/bin/silence
+COPY main.go home.html ./
+RUN CGO_ENABLED=0 go build -o /silence
 
-FROM gcr.io/distroless/base-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 
-USER nonroot
-COPY --from=build /go/bin/silence /usr/bin/silence
-CMD [ "/usr/bin/silence", "-addr", "0.0.0.0:8080" ]
+COPY --from=build /silence /silence
+ENTRYPOINT ["/silence"]
+CMD ["-addr", "0.0.0.0:8000"]

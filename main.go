@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	addr = "localhost:8080"
+	addr = "localhost:8000"
 
 	//go:embed home.html
 	homeHtml []byte
@@ -60,7 +60,7 @@ func (c *Client) readPump() {
 		}
 		uid := []byte(c.id + " ")
 		message = append(uid[:], message[:]...)
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		message = bytes.TrimSpace(bytes.ReplaceAll(message, newline, space))
 		c.hub.broadcast <- message
 	}
 }
